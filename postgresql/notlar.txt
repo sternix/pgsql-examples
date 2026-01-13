@@ -72,3 +72,30 @@ SELECT $message$I'm a string constant$message$ s;
 select uuid_extract_version(gen_random_uuid());
 
 ---------8<--------------------------
+
+create table tbltest(id int generated always as identity primary key, adi varchar(255), soyadi varchar(255))
+
+explain (buffers , analyze , verbose) select * from tbltest
+explain (buffers , analyze , verbose , format yaml) select * from tbltest
+explain (buffers , analyze , verbose, wal, format yaml) select * from tbltest;
+explain (buffers , analyze , verbose, wal, format json) select * from tbltest;
+
+---------8<--------------------------
+
+Tüm tipleri ve buyutlarını listtelemek için
+SELECT typname,typlen from pg_type where typtype='b';
+
+---------8<--------------------------
+
+select row(id , adi , soyadi) from tbltest;
+select  row_to_json(row(id , adi , soyadi)) from tbltest;
+
+---------8<--------------------------
+
+Postgresql'de tablo oluştururken verdiğimiz isim lovercase olarak işleniyor,
+eğer tablo adının istediğimiz şekilde olmasını istiyorsak
+"AAA" şeklinde tırnak içine almalıyız,
+
+Kolonlardada aynısı geçerli,
+
+---------8<--------------------------

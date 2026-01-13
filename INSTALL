@@ -1,0 +1,56 @@
+Ingres -> Post Ingres -> PostgreSQL
+
+ubuntu 24.04 için paket kurulumu
+
+pgdg -> PostgreSQL Global Development Group
+
+önce reposiyory'i kuruyoruz
+apt update
+apt install -y postgresql-common
+YES=yes /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+apt update
+apt upgrade
+
+initdb seçeneklerini değiştirmek
+
+# /etc/postgresql-common/createcluster.conf
+mkdir -p /etc/postgresql-common/createcluster.d
+echo "create_main_cluster=false" > /etc/postgresql-common/createcluster.d/my.conf
+echo "initdb_options = '--data-checksums --locale-provider=icu --icu-locale=tr-TR'" >> /etc/postgresql-common/createcluster.d/my.conf
+
+hem client, hem sunucu kurulumu için
+apt install postgresql
+
+sadece client'ı kurmak için (psql, pg_dump vs)
+apt install postgresql-client
+
+varsayılan olarak 18'yı kuruyor
+
+LC_ALL=tr_TR.UTF-8 pg_createcluster --start 18 main
+
+Türkçe hata mesajlarını ingilizce olarak değiştirmek
+cp /etc/postgresql/18/main/postgresql.conf{,.bak}
+sed -i "s/lc_messages = 'tr_TR.UTF-8'/lc_messages = 'en_US.UTF-8'/g" /etc/postgresql/18/main/postgresql.conf
+
+systemctl restart postgresql
+
+journalctl -xeu postgresql@18-main.service
+
+systemctl status postgresql
+systemctl status postgresql@18-main.service
+
+
+temel ayarlar
+vim /etc/postgresql/18/main/postgresql.conf
+```
+shared_buffers = ram'in 1/4
+effective_cache_size = ram'in 1/2
+maintenance_work_mem = 1GB
+work_mem = 4MB
+```
+
+
+crontab -e -u postgres
+```
+0 5 * * * /usr/bin/vacuumdb --full --analyze --all -q
+```
