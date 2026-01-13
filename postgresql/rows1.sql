@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION rows1()
+RETURNS int AS $$
+DECLARE r int;
+BEGIN
+  PERFORM * FROM names;
+  GET DIAGNOSTICS r = ROW_COUNT;
+  RETURN r;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION rows2()
+RETURNS int AS $$
+DECLARE r int;
+BEGIN
+  SELECT INTO r count(*) FROM names;
+  RETURN r;
+END;
+$$ LANGUAGE plpgsql;

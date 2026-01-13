@@ -1,0 +1,6 @@
+CREATE OR REPLACE FUNCTION Sum(a int, b int)
+RETURNS int AS $$
+BEGIN
+  RETURN a + b;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE STRICT;
