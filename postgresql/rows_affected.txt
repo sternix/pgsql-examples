@@ -1,0 +1,46 @@
+DECLARE
+        RowsAffected INTEGER;
+BEGIN
+        -- DO your statement
+        GET DIAGNOSTICS RowsAffected = ROW_COUNT;
+END
+
+GET DIAGNOSTICS integer_var = ROW_COUNT;
+
+
+A SELECT INTO statement sets FOUND true if a row is assigned, false if no row is returned.
+A PERFORM statement sets FOUND true if it produces (and discards) one or more rows, false if no row is produced.
+UPDATE, INSERT, and DELETE statements set FOUND true if at least one row is affected, false if no row is affected.
+A FETCH statement sets FOUND true if it returns a row, false if no row is returned.
+A MOVE statement sets FOUND true if it successfully repositions the cursor, false otherwise.
+A FOR or FOREACH statement sets FOUND true if it iterates one or more times, else false. FOUND is set this way when the loop exits; inside the execution of the loop, FOUND is not modified by the loop statement, although it might be changed by the execution of other statements within the loop body.
+RETURN QUERY and RETURN QUERY EXECUTE statements set FOUND true if the query returns at least one row, false if no row is returned.
+
+
+Stacked Diagnostics
+
+
+RETURNED_SQLSTATE       text    the SQLSTATE error code of the exception
+COLUMN_NAME     text    the name of column related to exception
+CONSTRAINT_NAME         text    the name of constraint related to exception
+PG_DATATYPE_NAME        text    the name of datatype related to exception
+MESSAGE_TEXT    text    the text of the exception's primary message
+TABLE_NAME      text    the name of table related to exception
+SCHEMA_NAME     text    the name of schema related to exception
+PG_EXCEPTION_DETAIL     text    the text of the exception's detail message, if any
+PG_EXCEPTION_HINT       text    the text of the exception's hint message, if any
+PG_EXCEPTION_CONTEXT    text    line(s) of text describing the call stack
+
+
+DECLARE
+  text_var1 text;
+  text_var2 text;
+  text_var3 text;
+BEGIN
+  -- some processing which might cause an exception
+  ...
+EXCEPTION WHEN OTHERS THEN
+  GET STACKED DIAGNOSTICS text_var1 = MESSAGE_TEXT,
+                          text_var2 = PG_EXCEPTION_DETAIL,
+                          text_var3 = PG_EXCEPTION_HINT;
+END;

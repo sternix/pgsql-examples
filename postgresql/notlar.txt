@@ -98,4 +98,113 @@ eğer tablo adının istediğimiz şekilde olmasını istiyorsak
 
 Kolonlardada aynısı geçerli,
 
+SELECT foo, FOo, Foo, fOO          -- all fold down to "foo"
+SELECT "foo", "FOo", "Foo", "fOO"  -- are all different
+
+---------8<--------------------------
+
+select to_timestamp( '01.02.2014', 'DD.MM.YYYY' );
+
+---------8<--------------------------
+
+BEGIN
+        select into howmuch sum(price) from stuff where invoiced='t';
+        IF NOT FOUND THEN
+                return 0;
+        ELSE
+                return howmuch;
+        ENDIF;
+END;
+
+---------8<--------------------------
+
+BEGIN;
+        DECLARE cursorname FOR query;
+        FETCH number_of_rows FROM cursorname;
+        MOVE {FORWARD|BACKWARD} number_of_rows IN cursorname;
+        ...
+COMMIT;
+
+---------8<--------------------------
+
+A function created with IMMUTABLE means: It will always return the same value for the same input.
+A function created with STRICT means : It will not be run if an argument is null.
+
+---------8<--------------------------
+
+eğer sorgumuzda bir sıra numarasına gerek duyuluyorsa,
+
+CREATE TEMP SEQUENCE number;
+select adi , soyadi , nextval('number') from tbltest
+
+şeklinde oturumumuzda geçici bir sequence  oluşturuyoruz,
+
+---------8<--------------------------
+
+select current_timestamp => "2014-03-26 09:19:11.273+00"
+select localtimestamp => "2014-03-26 09:19:17.894"
+select current_date => "2014-03-26"
+select current_time => "09:19:31.04+00"
+select localtime => "09:19:37.35"
+select now() => "2014-03-26 09:19:42.605+00"
+select timeofday() => "Wed Mar 26 09:19:48.905000 2014 GMT"
+
+---------8<--------------------------
+
+datetime casting
+
+select now()::date
+
+select timeofday()::timestamp;
+select timeofday()::date;
+select timeofday()::timestamp::time;
+
+---------8<--------------------------
+
+Trigger fonksiyonları
+
+NEW = Data type RECORD; variable holding the new database row for INSERT/UPDATE operations in row-level triggers. This variable is unassigned in statement-level triggers and for DELETE operations.
+OLD = Data type RECORD; variable holding the old database row for UPDATE/DELETE operations in row-level triggers. This variable is unassigned in statement-level triggers and for INSERT operations.
+TG_NAME = Data type name; variable that contains the name of the trigger actually fired.
+TG_WHEN = Data type text; a string of BEFORE, AFTER, or INSTEAD OF, depending on the trigger's definition.
+TG_LEVEL = Data type text; a string of either ROW or STATEMENT depending on the trigger's definition.
+TG_OP = Data type text; a string of INSERT, UPDATE, DELETE, or TRUNCATE telling for which operation the trigger was fired.
+TG_RELID = Data type oid; the object ID of the table that caused the trigger invocation.
+TG_RELNAME = Data type name; the name of the table that caused the trigger invocation. This is now deprecated, and could disappear in a future release. Use TG_TABLE_NAME instead.
+TG_TABLE_NAME = Data type name; the name of the table that caused the trigger invocation.
+TG_TABLE_SCHEMA = Data type name; the name of the schema of the table that caused the trigger invocation.
+TG_NARGS = Data type integer; the number of arguments given to the trigger procedure in the CREATE TRIGGER statement.
+TG_ARGV[] = Data type array of text; the arguments from the CREATE TRIGGER statement. The index counts from 0. Invalid indexes (less than 0 or greater than or equal to tg_nargs) result in a null value.
+
+---------8<--------------------------
+
+sorgularda regex kullanımı
+
+~       Matches regular expression, case sensitive
+~*      Matches regular expression, case insensitive
+!~      Does not match regular expression, case sensitive
+!~*     Does not match regular expression, case insensitive
+
+
+SELECT * FROM table_name WHERE col !~* '^[a-z]'
+SELECT * FROM table_name WHERE col !~ '^[a-zA-Z]';
+
+---------8<--------------------------
+
+case kullanımı
+SELECT ...
+          CASE
+            WHEN date < CURRENT_DATE THEN 'green'::text
+            WHEN date > CURRENT_DATE THEN 'red'::text
+            ELSE 'blue'::text
+          END
+          AS state,
+          (t1.field2 || t2.fieldA) AS stuff
+        FROM ...
+
+---------8<--------------------------
+
+select to_hex(10);
+select x'ab'::integer;
+
 ---------8<--------------------------
