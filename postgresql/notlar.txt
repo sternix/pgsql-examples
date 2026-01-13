@@ -1,0 +1,74 @@
+--bad
+DECLARE v varchar;
+BEGIN
+  v := 'a';
+  v := v || 'b';
+  v := v || 'c';
+  RETURN v;
+END;
+
+--well
+BEGIN
+  RETURN 'a' || 'b' || 'c';
+END;
+
+---------8<--------------------------
+
+-- bad
+DECLARE s varchar := '';
+BEGIN
+  IF x1 IS NULL THEN
+    s := s || 'NULL,'
+  ELSE
+    s := s || x1;
+  END IF;
+
+  IF x2 IS NULL THEN
+    s := s || 'NULL, '
+  ELSE
+    s := s || x2;
+  END IF;
+  ...
+
+-- well
+DECLARE s varchar;
+BEGIN
+  s := COALESCE(x1 || ',', 'NULL,')
+       || COALESCE(x2 || ',', 'NULL,')
+  ...
+
+---------8<--------------------------
+
+--bad
+CREATE OR REPLACE FUNCTION last_day(IN d date)
+RETURNS date AS $$
+BEGIN
+  RETURN CAST(date_trunc('month',current_date + interval '1month') AS date) - 1;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE STRICT;
+
+--well
+CREATE OR REPLACE FUNCTION last_day(IN d date)
+RETURNS date AS $$
+  SELECT CAST(date_trunc('month', $1 + interval '1month') AS date) - 1;
+$$ LANGUAGE sql;
+
+---------8<--------------------------
+
+select 'I''m a string constant';
+
+yerine
+
+select $$I'm a string constant$$;
+
+select $tag$<string_constant>$tag$;
+
+select $$I'm a string constant$$ as message;
+
+SELECT $message$I'm a string constant$message$ s;
+
+---------8<--------------------------
+
+select uuid_extract_version(gen_random_uuid());
+
+---------8<--------------------------
