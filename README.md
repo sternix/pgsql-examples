@@ -6,6 +6,8 @@
 
 [https://www.postgresql.org/docs/current/index.html](https://www.postgresql.org/docs/current/index.html)
 
+[https://tubitak-bilgem-yte.github.io/pg-yonetici/](https://tubitak-bilgem-yte.github.io/pg-yonetici/)
+
 [https://postgres.cz/wiki/PL/pgSQL_(en)](https://postgres.cz/wiki/PL/pgSQL_(en))
 
 [http://www.varlena.com/](http://www.varlena.com/) Archive.org

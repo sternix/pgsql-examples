@@ -208,3 +208,97 @@ select to_hex(10);
 select x'ab'::integer;
 
 ---------8<--------------------------
+
+SELECT 1 IN (1,2);      t
+SELECT 1 NOT IN (1,2);  f
+SELECT 1 IN (NULL, 1,2);        t
+SELECT 1 NOT IN (NULL,1,2);     f
+
+
+
+SELECT 3 IN (1,2);      f
+SELECT 3 NOT IN (1,2);  t
+SELECT 3 IN (NULL, 1,2);        NULL
+SELECT 3 NOT IN (NULL,1,2);     NULL
+
+
+SELECT NULL IN (1,2);   NULL
+SELECT NULL NOT IN (1,2);       NULL
+SELECT NULL IN (NULL, 1,2);     NULL
+SELECT NULL NOT IN (NULL,1,2);  NULL
+
+---------8<--------------------------
+
+istatistikler
+
+select * from pg_stat_database;
+select * from pg_stat_all_tables;
+select * from pg_stat_all_indexes;
+select * from pg_stat_user_tables;
+select * from pg_stat_user_indexes;
+select * from pg_stat_sys_tables;
+select * from pg_stat_sys_indexes;
+
+
+io istatistikleri
+
+select * from pg_statio_all_tables
+select * from pg_statio_all_indexes
+select * from pg_statio_all_sequences
+select * from pg_statio_user_tables
+select * from pg_statio_user_indexes
+select * from pg_statio_user_sequences
+select * from pg_statio_sys_tables
+select * from pg_statio_sys_indexes
+select * from pg_statio_sys_sequences
+
+
+
+bağlı olunan veritabanındaki istatistikleri sıfırlıyor,
+superuser olarak çalıştırılabiliyor
+
+SELECT pg_stat_reset();
+
+---------8<--------------------------
+
+single user mode
+
+su - postgres
+postgres --single -D DBPATH DBNAME
+
+CTRL + D ile çıkılıyor
+
+---------8<--------------------------
+
+select repeat('test'::text, 100);
+
+---------8<--------------------------
+
+psql'de değişken tanımlayıp kullanmak
+
+\set nbranches :scale
+\set naccounts 100000 * :scale
+\set aid random(1, :naccounts)
+\set bid random(1, :nbranches)
+BEGIN;
+SELECT * FROM pgbench_accounts WHERE aid >= :aid AND aid < (:aid + 5000) AND bid=:bid LIMIT 1;
+END;
+
+---------8<--------------------------
+
+psql'de değişken tanımlayıp kullanmak
+string değişkenler için :'' gerekiyor
+
+test=> \! echo "test" > tmp.txt
+test=> \set my_var `cat tmp.txt`
+test=> create table tbltst(a varchar(255));
+CREATE TABLE
+test=> insert into tbltst values (:'my_var');
+INSERT 0 1
+test=> select * from tbltst;
+  a
+------
+ test
+(1 row)
+
+---------8<--------------------------
