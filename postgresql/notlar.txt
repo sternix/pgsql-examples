@@ -694,3 +694,9 @@ create table t2 ( a text compression LZ4 );
 create table t3 ( a varchar(255) compression LZ4 );
 
 ---------8<--------------------------
+
+SELECT (timestamp at time zone 'australia/perth')::date, COUNT(*)
+FROM sale
+GROUP BY 1; 
+
+---------8<--------------------------
