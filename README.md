@@ -30,13 +30,4 @@
 
 [https://riptutorial.com/postgresql](https://riptutorial.com/postgresql)
 
-
-
-
-
-
-
-
-
-
-
+[https://hakibenita.com/postgresql-unknown-features](https://hakibenita.com/postgresql-unknown-features)

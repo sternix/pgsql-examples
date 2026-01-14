@@ -1,0 +1,213 @@
+https://www.cybertec-postgresql.com/en/postgresql-grouping-sets-rollup-cube/
+
+CREATE TABLE t_sales
+(
+    country        text,
+    product_name   text,
+    year           int,
+    amount_sold    numeric
+);
+
+INSERT INTO t_sales VALUES
+    ('Argentina', 'Shoes', 2020, 12),
+    ('Argentina', 'Shoes', 2021, 14),
+    ('Argentina', 'Hats', 2020, 54),
+    ('Argentina', 'Hats', 2021, 57),
+    ('Germany', 'Shoes', 2020, 34),
+    ('Germany', 'Shoes', 2021, 29),
+    ('Germany', 'Hats', 2020, 19),
+    ('Germany', 'Hats', 2021, 22),
+    ('USA', 'Shoes', 2020, 99),
+    ('USA', 'Shoes', 2021, 103),
+    ('USA', 'Hats', 2020, 81),
+    ('USA', 'Hats', 2021, 90)
+;
+
+
+SELECT  country, sum(amount_sold)
+       FROM    t_sales
+       GROUP BY 1;
+ country   | sum
+-----------+-----
+ USA       | 373
+ Germany   | 104
+ Argentina | 137
+(3 rows)
+
+
+"GROUP BY 1" basically means "GROUP BY country" which is the equivalent of the first column in the SELECT clause. Therefore "GROUP BY country" and "GROUP BY 1" are the same thing
+
+illa column olmasına gerek yok bir case ifadeside group by 1'de olabilir
+
+SELECT CASE WHEN country = 'USA'
+                THEN 'USA'
+                ELSE 'non-US'
+              END,
+              sum(amount_sold)
+       FROM t_sales
+       GROUP BY 1;
+case   | sum
+--------+-----
+ USA    | 373
+ non-US | 241
+(2 rows)
+
+SELECT  country, product_name, sum(amount_sold)
+       FROM    t_sales
+       GROUP BY 1, 2
+       ORDER BY 1, 2;
+ country   | product_name | sum
+-----------+--------------+-----
+ Argentina | Hats         | 111
+ Argentina | Shoes        |  26
+ Germany   | Hats         |  41
+ Germany   | Shoes        |  63
+ USA       | Hats         | 171
+ USA       | Shoes        | 202
+(6 rows)
+
+
+GROUP BY will turn every distinct entry in a column into a group. Sometimes you might want to do more grouping at once. Why is that necessary? Suppose you are processing a 10 TB table. Clearly, reading this data is usually the limiting factor in terms of performance. So reading the data once and producing more results at once is appealing. That’s exactly what you can do with GROUP BY GROUP SETS. Suppose we want to produce two results at once:
+
+GROUP BY country
+GROUP BY product_name
+
+SELECT  country, product_name, sum(amount_sold)
+       FROM    t_sales
+       GROUP BY GROUPING SETS ((1), (2))
+       ORDER BY 1, 2;
+ country   | product_name | sum
+-----------+--------------+-----
+ Argentina |              | 137
+ Germany   |              | 104
+ USA       |              | 373
+           | Hats         | 323
+           | Shoes        | 291
+(5 rows)
+
+In this case, PostgreSQL simply appends the results. The first three lines represent "GROUP BY country". The next two lines contain the result of "GROUP BY product_name". Logically, it’s the equivalent of the following query:
+
+SELECT  NULL AS country , product_name, sum(amount_sold)
+       FROM    t_sales
+       GROUP BY  1, 2
+       UNION ALL
+       SELECT  country, NULL, sum(amount_sold)
+       FROM    t_sales
+       GROUP BY  1, 2
+       ORDER BY 1, 2;
+ country   | product_name | sum
+-----------+--------------+-----
+ Argentina |              | 137
+ Germany   |              | 104
+ USA       |              | 373
+           | Hats         | 323
+           | Shoes        | 291
+(5 rows)
+
+However, the GROUPING SETS version is ways more efficient because it only has to read the data once.
+
+ROLLUP: Adding the “bottom line”
+
+When creating reports, you will often need the “bottom line” which sums up what has been shown in the table. The way to do that in SQL is to use “GROUP BY ROLLUP”:
+
+SELECT  country, product_name, sum(amount_sold)
+       FROM    t_sales
+       GROUP BY ROLLUP (1, 2)
+       ORDER BY 1, 2;
+ country   | product_name | sum
+-----------+--------------+-----
+ Argentina | Hats         | 111
+ Argentina | Shoes        |  26
+ Argentina |              | 137
+ Germany   | Hats         |  41
+ Germany   | Shoes        |  63
+ Germany   |              | 104
+ USA       | Hats         | 171
+ USA       | Shoes        | 202
+ USA       |              | 373
+           |              | 614
+(10 rows)
+
+PostgreSQL will inject a couple of rows into the result. As you can see, “Argentina” returns 3 and not just 2 rows. The “product_name = NULL” entry was added by ROLLUP. It contains the sum of all argentinian sales (116 + 27 = 137). Additional rows are injected for both other countries. Finally, a row is added for the overall sales worldwide.
+
+Often those NULL entries are not what people want to see, thus it can make sense to replace them with some other kind of entry. The way to do that is to use a subselect which checks for the NULL entry and does the replacement.  Here’s how it works:
+
+
+SELECT   CASE WHEN country IS NULL
+                      THEN 'TOTAL' ELSE country END,
+                CASE WHEN product_name IS NULL
+                      THEN 'TOTAL' ELSE product_name END,
+                sum
+       FROM (SELECT    country, product_name, sum(amount_sold)
+             FROM      t_sales
+             GROUP BY ROLLUP (1, 2)
+             ORDER BY 1, 2
+           ) AS x;
+ country   | product_name | sum
+-----------+--------------+-----
+ Argentina | Hats         | 111
+ Argentina | Shoes        |  26
+ Argentina | TOTAL        | 137
+ Germany   | Hats         |  41
+ Germany   | Shoes        |  63
+ Germany   | TOTAL        | 104
+ USA       | Hats         | 171
+ USA       | Shoes        | 202
+ USA       | TOTAL        | 373
+ TOTAL     | TOTAL        | 614
+(10 rows)
+
+As you can see, all NULL entries have been replaced with “TOTAL”, which in many cases is the more desirable way to display this data.
+
+
+CUBE: Creating data cubes in PostgreSQL efficiently
+
+ROLLUP is useful if you want to add the “bottom line”. However, you often want to see all combinations of countries and products. GROUP BY CUBE will do exactly that:
+
+SELECT  country, product_name, sum(amount_sold)
+       FROM    t_sales
+       GROUP BY CUBE (1, 2)
+       ORDER BY 1, 2;
+ country   | product_name | sum
+-----------+--------------+-----
+ Argentina | Hats         | 111
+ Argentina | Shoes        |  26
+ Argentina |              | 137
+ Germany   | Hats         |  41
+ Germany   | Shoes        |  63
+ Germany   |              | 104
+ USA       | Hats         | 171
+ USA       | Shoes        | 202
+ USA       |              | 373
+           | Hats         | 323
+           | Shoes        | 291
+           |              | 614
+(12 rows)
+
+In this case, we’ve got all the combinations. Technically, it’s the same as: GROUP BY country + GROUP BY product_name + GROUP BY country_product_name + GROUP BY (). We could do that using more than just one statement, but doing it at once is easier – and a lot more efficient.
+
+Again, NULL values have been added to indicate various aggregation levels.
+
+Grouping sets: Execution plans
+
+Grouping sets don’t just simply rewrite the query to turn it into a UNION ALL – there is actually specific code in the database engine to perform those aggregations.
+
+What you will see is a “MixedAggregate” which is capable of aggregating at various levels at once. Here is an example:
+
+explain SELECT country, product_name, sum(amount_sold)
+           FROM t_sales
+           GROUP BY CUBE (1, 2)
+           ORDER BY 1, 2;
+                          QUERY PLAN
+-----------------------------------------------------------
+ Sort  (cost=64.15..65.65 rows=601 width=96)
+   Sort Key: country, product_name
+   ->  MixedAggregate  (cost=0.00..36.41 rows=601 width=96)
+     Hash Key: country, product_name
+     Hash Key: country
+     Hash Key: product_name
+     Group Key: ()
+     ->  Seq Scan on t_sales ...
+(8 rows)
+
+Looking at the MixedAggregate also reveals which aggregations are performed as part of the grouping set.

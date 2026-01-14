@@ -1,0 +1,58 @@
+NULL is not a value.Never compare it with =,<>
+SELECT * FROM TABLE WHERE COLUMN_VALUE = NULL,will not give you desired result. Instead use:
+SELECT * FROM TABLE WHERE COLUMN_VALUE IS NULL;--Think like either it IS NULL or IS NOT NULL
+
+
+NULL isn't equal (or not equal) to anything in SQL
+(x = NULL and x != NULL are never true for any x)
+
+create table null_test (name varchar(25), owner varchar(25));
+insert into null_test values (NULL,'bob'),('nemp','ahmed');
+
+select * from null_test where name = NULL;
+ name | owner
+------+-------
+(0 rows)
+
+
+select * from null_test where name is  NULL;
+ name | owner
+------+-------
+      | bob
+
+
+select * from null_test where name != 'betty';
+ name | owner
+------+-------
+ nemp | ahmed
+
+
+select * from null_test where name != 'betty' or name is null;
+ name | owner
+------+-------
+      | bob
+ nemp | ahmed
+
+
+select 2 + NULL;
+ ?column?
+----------
+
+
+select NULL * 10;
+ ?column?
+----------
+
+select NULL = NULL;
+ ?column?
+----------
+
+
+select 2 = NULL;
+ ?column?
+----------
+
+select concat('hi',NULL);
+ concat
+--------
+ hi

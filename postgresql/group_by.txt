@@ -1,0 +1,70 @@
+GROUP BY
+
+GROUP BY combines multiple rows into one row.
+
+sales
+item    price
+catnip  5
+laser   8
+tuna    4
+tuna    3
+
+SELECT item, COUNT(*), MAX(price)
+FROM sales
+GROUP BY item;
+
+burada COUNT(*) ve MAX(price)'lara aggregates(toplamı, bütünü) deniliyor
+
+1. aşama
+Split the table into groups for each value that you grouped by:
+group'lanan kolon'un adedince tablo oluşturuluyor.
+bizim örneğimizde 3 farklı item var (catnip,laser,tuna)
+herbiri için bir tablo oluştuğunu düşünelim
+
+item='catnip'
+item    price
+catnip  5
+
+item='laser'
+item    price
+laser   8
+
+item='tuna'
+item    price
+tuna    4
+tuna    3
+
+2. aşama
+Calculate the aggregates from the query for each group:
+
+item='catnip'
+item    price
+catnip  5
+
+COUNT(*) = 1
+MAX(price) = 5
+
+item='laser'
+item    price
+laser   8
+
+COUNT(*) = 1
+MAX(price) = 8
+
+
+item='tuna'
+item    price
+tuna    4
+tuna    3
+
+COUNT(*) = 2
+MAX(price) = 4
+
+3. aşama
+Create a result set with 1 row for each group
+her grup için hesapladığımız değerleri birleştiriyoruz
+
+item    COUNT(*)    MAX(price)
+catnip  1           5
+laser   1           8
+tuna    2           4

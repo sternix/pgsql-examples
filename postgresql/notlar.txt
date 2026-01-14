@@ -562,3 +562,135 @@ psql -1f file.sql
     execute as a single transaction (if non-interactive)
 
 ---------8<--------------------------
+
+SELECT char_length('ABCDE')
+SELECT character_length('ABCDE')
+
+---------8<--------------------------
+
+psql -h /tmp
+
+ile unix domain socket'e
+
+psql -h localhost
+
+ile tcp ip üzerinden bağlantı yapılıyor
+
+---------8<--------------------------
+
+bir sorgu dosyadan çalıştırılırken ne kadar zamanda çalıştı
+
+psql -c "SELECT current_time" –f examples.sql -c "SELECT current_time"
+
+---------8<--------------------------
+
+CREATE TABLE uses_identity (
+   id bigint GENERATED ALWAYS AS IDENTITY
+             (MINVALUE 0 START WITH 0 CACHE 20)
+             PRIMARY KEY,
+   ...
+);
+
+---------8<--------------------------
+
+1 ay sonraki tarih
+
+select current_timestamp +  interval '1 month';
+
+buradaki interval
+hours
+second
+
+olabilir
+
+---------8<--------------------------
+
+MySQL'deki
+
+SELECT FROM_UNIXTIME(timecreated) ...
+SELECT from_unixtime(timecreated) ...
+
+SELECT FROM_UNIXTIME(UNIX_TIMESTAMP(), '%Y %D %M %h:%i:%s %x');
++---------------------------------------------------------+
+| FROM_UNIXTIME(UNIX_TIMESTAMP(), '%Y %D %M %h:%i:%s %x') |
++---------------------------------------------------------+
+| 2025 30th September 09:04:42 2025                       |
++---------------------------------------------------------+
+
+
+yerine PostgreSQL'de
+
+SELECT to_timestamp(timecreated) ....
+
+kullanabiliriz
+
+SELECT extract('epoch' from CURRENT_TIMESTAMP)::bigint;
+SELECT extract('epoch' from now())::bigint;
+
+ile tarihi bigint'e yani unixtime'a çevirebiliriz
+
+SELECT to_timestamp(extract('epoch' from now())::bigint);
+
+istediğimiz bir tarihi unix time'a çevirmek
+
+select extract('epoch' from '2021-01-01 00:00:00+00'::timestamp)::bigint;
+select extract('epoch' from '2021-01-01'::timestamp)::bigint;
+select extract('epoch' from '2021-12-20'::timestamp)::bigint;
+
+kontrol için
+
+SELECT to_timestamp(extract('epoch' from now())::bigint);
+
+---------8<--------------------------
+
+select decode('1234','base64');
+select encode ('\xd76df8','base64');
+
+select decode('1234','hex');
+select encode('\x1234','hex');
+
+---------8<--------------------------
+
+https://dba.stackexchange.com/questions/125413/index-not-used-with-any-but-used-with-in/125500#125500
+
+SELECT *
+FROM t
+WHERE (a,b) = ANY(VALUES (1,1),(1,2));
+
+...
+WHERE (a,b) IN (VALUES (1,1),(1,2));
+
+---------8<--------------------------
+
+postgresql.conf dosyasında work_mem küçük tutulup eğer
+çalıştıracağımız sorgu daha fazla ram'e ihtiyaç duyuyorsa
+SET LOCAL ile query başına set edebiliriz
+
+SET LOCAL work_mem = '64MB';
+SELECT * FROM db ORDER BY LOWER(name);
+
+---------8<--------------------------
+
+sadece bilgi için
+
+regex mantığı
+
+DECLARE
+    current_timescaledb_version_full    VARCHAR;
+begin
+
+SHOW server_version INTO current_postgres_version_full;
+
+IF NOT found THEN
+RAISE EXCEPTION 'Cannot determine PostgreSQL version, aborting';
+END IF;
+
+SELECT substring(current_postgres_version_full, '^(\d+).') INTO current_postgres_version_major;
+SELECT substring(current_postgres_version_full, '^\d+.(\d+)') INTO current_postgres_version_minor;
+
+---------8<--------------------------
+
+create table t2 ( a text compression LZ4 );
+create table t3 ( a varchar(255) compression LZ4 );
+
+---------8<--------------------------
