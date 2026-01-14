@@ -1,0 +1,1 @@
+create table t112 as select a,md5(a::text) as txt, now() as date from generate_series(1,1000) a;

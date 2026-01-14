@@ -6,6 +6,8 @@
 
 [https://www.postgresql.org/docs/current/index.html](https://www.postgresql.org/docs/current/index.html)
 
+[https://tubitak-bilgem-yte.github.io/pg-gelistirici/](https://tubitak-bilgem-yte.github.io/pg-gelistirici/)
+
 [https://tubitak-bilgem-yte.github.io/pg-yonetici/](https://tubitak-bilgem-yte.github.io/pg-yonetici/)
 
 [https://postgres.cz/wiki/PL/pgSQL_(en)](https://postgres.cz/wiki/PL/pgSQL_(en))
@@ -26,7 +28,7 @@
 
 [https://neon.com/postgresql/postgresql-administration](https://neon.com/postgresql/postgresql-administration)
 
-
+[https://riptutorial.com/postgresql](https://riptutorial.com/postgresql)
 
 
 

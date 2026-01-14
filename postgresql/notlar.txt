@@ -389,7 +389,9 @@ yada toggle için
 
 ---------8<--------------------------
 
-watch 
+\watch 
+
+psql'in bir komutu
 
 select count(*) from tbltest; \watch
 varsayılan 2 saniye
@@ -398,6 +400,14 @@ select count(*) from tbltest; \watch N
 her N saniyede bir çalışır
 
 SELECT * FROM pg_stat_progress_copy \watch 1
+
+yada önce bir sorgu çalıştır
+sonra
+
+SELECT * FROM pg_stat_progress_copy
+
+\watch 1
+ile en son çalıştırtığımız komutu sürekli çalıştırıyor
 
 ---------8<--------------------------
 
@@ -509,6 +519,46 @@ alter table t1 alter column a type date using to_date(a,'DDMMYYYY');
 
 ---------8<--------------------------
 
-time
+sistemden bir rol silmeden silinecek role bağımlı olan nesneleri düşünüp
+başka bir role atamak gerekebilir
+
+REASSIGN OWNED BY old_role TO new_role
+komutu ile eski role bağlı tüm nesneler yeni nesnenin olur
+
+---------8<--------------------------
+
+bir kullanıcıyı superuser yapmak
+
+create role my_admin;
+alter role my_admin superuser;
+
+yada direkt
+
+create role my_admin superuser;
+
+---------8<--------------------------
+
+set role my_admin;
+
+alter user my_dba set role my_admin;
+
+---------8<--------------------------
+
+çalıştırılan tüm sorgulamak istersek
+
+set log_statement='all';
+
+---------8<--------------------------
+
+set search_path = 'my_schema',"$user",public;
+
+---------8<--------------------------
+
+dosyayı tek transaction içinde yapıyor eğer hata olursa rollback ediliyor
+
+psql -1f file.sql
+
+-1 ("one"), --single-transaction
+    execute as a single transaction (if non-interactive)
 
 ---------8<--------------------------
