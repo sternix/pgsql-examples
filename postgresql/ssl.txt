@@ -1,0 +1,44 @@
+// TODO: eski olabilir, 18'de test edilmeli
+
+cd $PGDATA
+cd /opt/pgsql/13_2/data
+
+openssl req -new -text -out server.req
+// challence password vermedim
+
+openssl rsa -in privkey.pem -out server.key
+rm privkey.pem
+openssl req -x509 -in server.req -text -key server.key -out server.crt
+chmod og-rwx server.key
+chown postgres:postgres server.key server.crt
+
+$PGDATA/server.crt
+$PGDATA/server.key
+
+örneğin
+/opt/pgsql/13_2/data
+
+dizini içinde olmalılar
+
+vim postgresql.conf
+```
+ssl = on
+ssl_cert_file = 'server.crt'
+ssl_key_file = 'server.key'
+ssl_ciphers = 'HIGH:MEDIUM:+3DES:!aNULL' # allowed SSL ciphers
+ssl_prefer_server_ciphers = on
+ssl_ecdh_curve = 'prime256v1'
+ssl_min_protocol_version = 'TLSv1.2'
+ssl_max_protocol_version = ''
+```
+
+SELECT * FROM pg_stat_ssl;
+
+seritifika testi için
+
+openssl s_client -connect localhost:5432 -starttls postgres
+
+psql'de
+\conninfo
+You are connected to database "test" as user "user" on host "192.168.1.1" at port "5432".
+SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)

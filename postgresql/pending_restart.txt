@@ -1,0 +1,41 @@
+https://blog.dbi-services.com/sql-monitoring-in-postgresql-1-the-logging-system/
+
+alter system set logging_collector=on;
+show logging_collector;
+
+show log_directory;
+show log_filename;
+alter system set log_filename='postgresql-%Y-%m-%d_%H%M%S.log';
+show log_rotation_size;
+show log_rotation_age;
+
+select name,pending_restart  from pg_settings
+where name in ('log_filename','log_rotation_size','log_rotation_age','log_destination','logging_collector');
+
+select pg_reload_conf();
+
+// komutların çalışmasının ne kadar sürdüğü
+alter system set log_duration=on;
+
+select name,pending_restart
+from pg_settings
+where name in ('log_duration');
+
+select pg_reload_conf();
+
+----
+
+alter system set work_mem='16MB';
+show work_mem;
+
+grep work_mem postgresql.conf
+work_mem=32MB
+
+sed -i 's/work_mem=32MB/work_mem=8MB/g' postgresql.conf
+
+select context from pg_settings where name = 'work_mem';
+select pending_restart from pg_settings where name = 'work_mem';
+alter system set port=5555;
+
+select pending_restart from pg_settings where name = 'port';
+

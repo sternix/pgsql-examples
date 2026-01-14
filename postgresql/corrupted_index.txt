@@ -1,0 +1,28 @@
+https://blog.dbi-services.com/dealing-with-corrupted-system-indexes-in-postgresql/
+
+Dealing with corrupted system indexes in PostgreSQL
+
+% [pgdev] psql
+psql: error: could not connect to server: FATAL:  index "pg_class_oid_index" contains unexpected zero page at block 0
+HINT:  Please REINDEX it.
+
+select pg_relation_filepath('pg_class_oid_index');
+
+eğer tanımlıysa
+\! echo $PGDATA
+
+sistem index'leri concurrent olarak reindex yapılamıyor
+
+% reindex index concurrently pg_class_oid_index;
+ERROR:  cannot reindex system catalogs concurrently
+
+pg_ctl restart -m fast
+
+echo "ignore_system_indexes='true'" >> $PGDATA/postgresql.auto.conf
+pg_ctl restart -m fast
+reindex index pg_class_oid_index;
+alter system set ignore_system_indexes = 'false';
+pg_ctl restart -m fast
+psql -X postgres
+
+-X, --no-psqlrc          do not read startup file (~/.psqlrc)
