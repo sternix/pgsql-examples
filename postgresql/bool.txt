@@ -1,0 +1,7 @@
+boolean veri tipi
+1 byte
+Y,N,y,n,T,F,t,f,1,0
+değerleri geçerlidir,
+
+içeride sadece t/f olarak tutuyor,
+yani ne girersek girelim bize t/f olarak görülüyor

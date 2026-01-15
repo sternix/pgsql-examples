@@ -544,9 +544,12 @@ alter user my_dba set role my_admin;
 
 ---------8<--------------------------
 
-çalıştırılan tüm sorgulamak istersek
+çalıştırılan tüm sorguları loglamak için
 
-set log_statement='all';
+logging_collector = on
+log_statement = 'all'
+
+serverlog'a yazıyor
 
 ---------8<--------------------------
 
@@ -698,5 +701,438 @@ create table t3 ( a varchar(255) compression LZ4 );
 SELECT (timestamp at time zone 'australia/perth')::date, COUNT(*)
 FROM sale
 GROUP BY 1; 
+
+---------8<--------------------------
+
+ALTER TABLE tbl ADD CONSTRAINT tbl_column_fk
+FOREIGN KEY (tbl_column) REFERENCES diğer_tablo(kolon);
+
+---------8<--------------------------
+
+değişiklik yapılmış satırlar
+
+grep '^[[:blank:]]*[^[:blank:]#;]' /etc/postgresql/18/main/postgresql.conf
+
+---------8<--------------------------
+
+admin kullanıcısı olarak
+
+select * from pg_file_settings;
+yada
+table pg_file_settings;
+
+ile postgresql.conf dosyasındaki varsayılanın dışında değişiklikleri görebiliriz,
+
+---------8<--------------------------
+
+psql'de şemaları listelemek
+
+=> \dnS
+        List of schemas
+        Name        |  Owner
+--------------------+----------
+ information_schema | postgres
+ pg_catalog         | postgres
+ pg_toast           | postgres
+ public             | postgres
+
+---------8<--------------------------
+
+SELECT substring('w3resource' from 4 for 5);
+
+The following PostgreSQL statement returns 5 characters starting from the 4th position from the string 'w3resource', that is 'esour'.
+
+substring(first_name,1,4) "1st 4 characters of first_name"
+
+---------8<--------------------------
+
+CREATE USER: varsayılan olarak login yetkisi olan bir kullanıcı oluşturur.
+CREATE ROLE: nologin bir kullanıcı oluşturur.
+
+---------8<--------------------------
+
+listen_addresses = ''
+
+ile tcp/ip'yi kapatıyoruz
+
+---------8<--------------------------
+
+env PGOPTIONS="-c geqo=off -c statement_timeout=5min" psql
+
+---------8<--------------------------
+
+ALTER ROLE postgres NOSUPERUSER;
+
+ile postgres kullanıcısının superuser yetkileri alınıyor,
+
+ALTER ROLE postgres SUPERUSER;
+ERROR:  must be superuser to alter superuser roles or change superuser attribute
+ile'de veremiyoruz !,
+
+---------8<--------------------------
+
+single user mod
+
+sudo -u postgres bash
+
+/usr/lib/postgresql/18/bin/postgres --single -D /var/lib/postgresql/18/main/ -c config_file=/etc/postgresql/18/main/postgresql.conf  postgres
+
+backend>
+
+açılıyor
+
+backend> ALTER ROLE postgres SUPERUSER
+backend> CTRL + D
+
+---------8<--------------------------
+
+generate_series(1,16,2)
+1'den 16'ya kadar 2 şer ikişer
+1,3,5,7,9,11,13,15
+
+---------8<--------------------------
+
+https://stackoverflow.com/questions/12815496/export-specific-rows-from-a-postgresql-table-as-insert-sql-script/12816187#12816187
+
+Export specific rows from a PostgreSQL table as INSERT SQL script
+
+create table export_table as
+select id, name, city
+from nyummy.cimory
+where city = 'tokyo'
+
+$ pg_dump --table=export_table --data-only --column-inserts my_database > data.sql
+
+--column-inserts will dump as insert commands with column names.
+
+--data-only do not dump schema.
+
+---------8<--------------------------
+
+oturum için değişken tanımlama
+
+SET session total.users = 200;
+select id from generate_series(1, current_setting('total.users')::INTEGER) id;
+
+---------8<--------------------------
+
+select exists(SELECT 1 from pg_database WHERE datname = 'test')
+
+true yada false dönmesi istediğimiz bir sorgu için
+
+if the subquery returns NULL, EXISTS returns true. See the following example:
+
+select exists(SELECT NULL);
+
+---------8<--------------------------
+
+SELECT format('GRANT SELECT ON TABLE %I TO someuser;', tablename) FROM pg_tables WHERE tablename~'^pgbench';
+
+---------8<--------------------------
+
+-- sanıyorum bu şekilde trigger'ı tetikleyebiliyoruz
+
+update iot_thermostat set thetime=thetime;
+
+update table set colon = colon
+
+---------8<--------------------------
+
+replication != yedek,backup
+
+---------8<--------------------------
+
+varsayılan değerleri girmek için
+
+create table t1 (id serial primary key, a varchar(255));
+insert into t1 default values;
+
+DEFAULT VALUES
+
+create table t1x (id int generated always as identity primary key, a varchar(255));
+insert into t1x default values;
+
+---------8<--------------------------
+
+identity kolonun değerini değiştirmek için
+
+insert into t2 (id) overriding system value values (1);
+
+---------8<--------------------------
+
+a VARCHAR domain that should have a not null constraint and a default value of 'N/A'.
+
+CREATE DOMAIN addr VARCHAR(90) NOT NULL DEFAULT 'N/A';
+
+---------8<--------------------------
+
+USING keyword
+
+The USING clause is a shorthand that allows you to take advantage of the specific situation where both sides of the join use the same name for the joining column(s). It takes a comma-separated list of the shared column names and forms a join condition that includes an equality comparison for each one. For example, joining T1 and T2 with USING (a, b) produces the join condition ON T1.a = T2.a AND T1.b = T2.b.
+
+---------8<--------------------------
+
+psql -v ON_ERROR_STOP=1 -d MYDB -U MYUSER < dump.sql
+
+---------8<--------------------------
+
+local'de şifre sormasını istersek
+
+pg_hba.conf
+
+local   all             all   trust
+=>
+local   all             all   md5
+
+---------8<--------------------------
+
+tcp portu 5432 üzerinden değil socket üzerinden bağlanmak istersek
+psql -h /tmp -d postgres -U postgres
+
+
+psql -h /var/run/postgresql -d your_database
+
+socket path'i dbadmin olarak
+
+show unix_socket_directories;
+
+görebiliriz
+
+unix_socket_directories = '/var/run/postgresql, /tmp'
+
+ile iki farklı şekilde tanımlayabiliriz
+
+psql -U postgres -p 5432 -h /var/run/postgresql
+
+psql -U user -d postgres -h /var/run/postgresql
+
+---------8<--------------------------
+
+not null'u kaldırmak
+
+alter table tbltest alter column tblcol drop not null;
+
+---------8<--------------------------
+şifre sormadan cron çalıştırma
+
+export EDITOR=vim
+crontab -e -u postgres
+
+PGPASSWORD='secret'
+
+0 4 * * * /opt/pgsql/16_0/bin/vacuumdb --all -U postgres --analyze -j 4
+
+---------8<--------------------------
+
+şifre sormadan backup alma
+
+#!/bin/sh
+
+DATE=$(date +%d_%m_%Y_%H%M)
+BACKUP_DIR=/backup/postgresql
+export PGPASSWORD=secret
+
+/usr/local/bin/pg_dump -Fc -h 192.168.10.1 -d test -U kullanici > $BACKUP_DIR/test_$DATE.dump
+
+---------8<--------------------------
+
+https://www.percona.com/blog/2018/08/29/tune-linux-kernel-parameters-for-postgresql-optimization/
+
+PostgreSQL için ne kadar huge page'in gerektiği
+
+#!/bin/bash
+pid=`head -1 $PGDATA/postmaster.pid`
+echo "Pid:            $pid"
+peak=`grep ^VmPeak /proc/$pid/status | awk '{ print $2 }'`
+echo "VmPeak:            $peak kB"
+hps=`grep ^Hugepagesize /proc/meminfo | awk '{ print $2 }'`
+echo "Hugepagesize:   $hps kB"
+hp=$((peak/hps))
+echo Set Huge Pages:     $hp
+
+---------8<--------------------------
+
+tırnak içinde sonuç dönülmesi için
+
+SELECT  format( '"%s"', email ) from emails;
+
+---------8<--------------------------
+
+iki tablonun diff'i
+
+select * from h201 where not exists (select from h201_l where h201.email = h201_l.email);
+select id from m where not exists (select id from a where a.id = m.id);
+
+---------8<--------------------------
+
+psql ile stdin'den toplu veri girişi
+
+=> create table x (id varchar(255));
+=> copy m from stdin;
+Enter data to be copied followed by a newline.
+End with a backslash and a period on a line by itself, or an EOF signal.
+>> 12344
+45645
+325345
+435646
+345645
+\. yada CTRL+D
+
+---------8<--------------------------
+
+tablodaki veriyi stdout'a kopyalamak
+
+COPY (select * from m) TO STDOUT;
+
+---------8<--------------------------
+
+psql'de sorgulara parametre eklenebiliyor
+
+psql
+> select count(*) from pg_class where relkind=$1 and relname not like $2
+> \bind 'r' 'pg_%'
+> \g
+
+---------8<--------------------------
+
+select current_user, system_user;
+
+---------8<--------------------------
+
+pg_hba.conf'ta regex kullanımı
+
+host /^dev /^dev 10.0.0.0/24 scram-sha-2564
+host sameuser /^test 10.0.0.0/24 scram-sha-2564
+
+---------8<--------------------------
+
+pg_hba.conf'ta
+
+include_if_exists pg_hba_override.conf
+include pg_hba_test.conf
+include_dir all_my_pghba
+
+---------8<--------------------------
+
+grant maintain on mytable to testuser;
+grant pg_maintain to testuser;
+
+---------8<--------------------------
+
+... ORDER BY last_updated NULLS FIRST
+
+... ORDER BY last_updated DESC NULLS LAST
+
+CREATE INDEX foo_idx ON tbl (last_updated DESC NULLS LAST);
+
+CREATE INDEX foo_idx ON tbl (last_updated);
+
+NULLS FIRST is default for DESC, NULLS LAST is default for ASC.
+
+---------8<--------------------------
+
+pg_dump için
+
+-Z gzip:9
+-Z lz4:9
+
+gibi farklı sıkıştırma kütüphaneleri seçilebilir
+
+---------8<--------------------------
+
+template0 should never be modified, but you can add objects to template1, which by default will be copied into databases created later.
+
+---------8<--------------------------
+
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO user;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO user;
+
+---------8<--------------------------
+
+ps -u postgres -o pid,comm,cmd,args
+
+---------8<--------------------------
+
+create role paperwork;
+create database paperwork;
+grant all privileges on database paperwork to paperwork;
+ALTER ROLE paperwork WITH LOGIN;
+ALTER ROLE paperwork WITH PASSWORD 'paperwork';
+
+---------8<--------------------------
+
+CREATE USER rewind_user LOGIN;
+GRANT EXECUTE ON function pg_catalog.pg_ls_dir(text, boolean, boolean) TO rewind_user;
+GRANT EXECUTE ON function pg_catalog.pg_stat_file(text, boolean) TO rewind_user;
+GRANT EXECUTE ON function pg_catalog.pg_read_binary_file(text) TO rewind_user;
+GRANT EXECUTE ON function pg_catalog.pg_read_binary_file(text, bigint, bigint, boolean) TO rewind_user;
+
+---------8<--------------------------
+
+GRANT ALTER SYSTEM ON PARAMETER cpu_index_tuple_cost TO test_user;
+
+---------8<--------------------------
+
+MERGE INTO customer_account ca
+USING recent_transactions t
+ON t.customer_id = ca.customer_id
+WHEN MATCHED THEN
+UPDATE SET balance = balance + transaction_value
+WHEN NOT MATCHED THEN
+INSERT (customer_id, balance)
+VALUES (t.customer_id, t.transaction_value);
+
+---------8<--------------------------
+
+bir tabloya primary key eklemek
+alter table customers add primary key (id);
+
+create table y (id int);
+alter table y alter id set not null, alter id add generated always as identity;
+
+eğer tabloda veri varsa
+
+ (START WITH 2);
+
+ile identity'nin kaçıncı kolondan başlayacağını belirleyebiliriz
+
+---------8<--------------------------
+
+işletim sistemi ve postgresql servisinin limitlerini görmek
+
+https://unix.stackexchange.com/questions/480574/how-do-i-identify-all-of-the-configured-memory-limits-for-a-service-started-usin
+
+systemctl show postgresql.service | grep ^Memory
+systemctl show postgresql.service | grep ^Limit
+
+ipcs -ma
+lsipc
+
+---------8<--------------------------
+
+revoke all on schema public from public;
+
+---------8<--------------------------
+
+kullanıcı bazlı kaynak ayarlama
+
+create role xyz password 'deneme' login connection limit 5;
+alter role xyz set work_mem = '10MB';
+alter role xyz reset work_mem;
+
+pg_user.userconfig
+kolonunda tutuyor
+
+---------8<--------------------------
+
+eğer postgresql.conf dosyasının konumunu bilmiyorsak
+
+psql -U postgres -c 'SHOW config_file'
+
+data dizini cluster'ın path'ini
+
+psql -U postgres -c 'SHOW data_directory'
+
+ile öğrenebiliriz
 
 ---------8<--------------------------

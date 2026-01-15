@@ -1,0 +1,27 @@
+temiz bir backup-restore
+(eklenti olmadığını varsayıyorum)
+
+pg_dump -Fc -Z6 -U postgres -f test.dump test
+
+postgresql'e tanımlanmış kullanıcıları kontrol ediyorum
+psql> \du
+                             List of roles
+ Role name |                   Attributes                   | Member of
+-----------+-----------+-----------
+ postgres  | Superuser, Create role, Create DB, Replication | {}
+ kullanici | Create DB                                      | {}
+
+yeni kurulan versiyonda bu kullanıcıları oluşturacağımız için
+kullanıcı adı ve şifreleri not alıyoruz
+
+yeni veritabanında olmayan role'leri oluşturuyorum
+psql> create role kullanici with login createdb;
+
+login'e password veriyorum
+psql> \password kullanici
+
+\c postgres kullanici
+psql> create database test with template template0;
+
+sonra restore ettim
+pg_restore -d test -U postgres -Fc test.dump

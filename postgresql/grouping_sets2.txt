@@ -1,0 +1,56 @@
+test=# SELECT  country, product_name, sum(amount_sold)
+       FROM    t_sales
+       GROUP BY GROUPING SETS ((1), (2))
+       ORDER BY 1, 2;
+ country   | product_name | sum
+-----------+--------------+-----
+ Argentina |              | 137
+ Germany   |              | 104
+ USA       |              | 373
+           | Hats         | 323
+           | Shoes        | 291
+(5 rows)
+
+test=# SELECT  country, product_name, sum(amount_sold)
+       FROM    t_sales
+       GROUP BY ROLLUP (1, 2)
+       ORDER BY 1, 2;
+ country   | product_name | sum
+-----------+--------------+-----
+ Argentina | Hats         | 111
+ Argentina | Shoes        |  26
+ Argentina |              | 137
+ Germany   | Hats         |  41
+ Germany   | Shoes        |  63
+ Germany   |              | 104
+ USA       | Hats         | 171
+ USA       | Shoes        | 202
+ USA       |              | 373
+           |              | 614
+(10 rows)
+
+PostgreSQL will inject a couple of rows into the result. As you can see, "Argentina" returns 3 and not just 2 rows. The "product_name = NULL" entry was added by ROLLUP. It contains the sum of all argentinian sales (116 + 27 = 137). Additional rows are injected for both other countries. Finally, a row is added for the overall sales worldwide.
+
+test=# SELECT  country, product_name, sum(amount_sold)
+       FROM    t_sales
+       GROUP BY CUBE (1, 2)
+       ORDER BY 1, 2;
+ country   | product_name | sum
+-----------+--------------+-----
+ Argentina | Hats         | 111
+ Argentina | Shoes        |  26
+ Argentina |              | 137
+ Germany   | Hats         |  41
+ Germany   | Shoes        |  63
+ Germany   |              | 104
+ USA       | Hats         | 171
+ USA       | Shoes        | 202
+ USA       |              | 373
+           | Hats         | 323
+           | Shoes        | 291
+           |              | 614
+(12 rows)
+
+In this case, we’ve got all the combinations. Technically, it’s the same as: GROUP BY country + GROUP BY product_name + GROUP BY country_product_name + GROUP BY (). We could do that using more than just one statement, but doing it at once is easier - and a lot more efficient.
+
+Again, NULL values have been added to indicate various aggregation levels.

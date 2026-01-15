@@ -1,0 +1,39 @@
+-- sadece backup için readonly user
+-- bu senaryoda başka bir host'tan bağlanıp yedek alınacağı düşünüldü
+
+create user backup;
+\password backup
+
+yedeklenecek her veritabanı için yap
+\c test
+
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO backup;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO backup;
+
+postgresql.conf'ta listen_addresses = '*' olmalı
+pg_hba.conf
+=BEGIN
+host    test         backup          192.168.10.1/32       scram-sha-256
+=END
+
+select pg_reload_conf();
+
+verilen haklar mevcut nesneler için
+sonradan oluşturulmuş olanlar için tekrar hak verilmesi gerekiyor
+psql'de
+\z
+ile haklar görülebilir
+
+ör sequence için
+Access privileges | test=rwU/test             +
+                    backup=r/test
+
+tablo için
+Access privileges | test=arwdDxt/test         +
+                  | backup=r/test
+
+backup için sadece read hakkı var
+
+hakları geri almak için
+-- REVOKE SELECT ON ALL TABLES IN SCHEMA public FROM backup;
+-- REVOKE SELECT ON ALL SEQUENCES IN SCHEMA public FROM backup;

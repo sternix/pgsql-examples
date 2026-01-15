@@ -57,3 +57,31 @@ select format('create index on %I',b.tab)||format('(%I)' ,c.attname)
 select 'drop table tt'||gen
   from generate_series(1,20) gen
 \gexec
+
+------
+
+https://www.cybertec-postgresql.com/en/gexec-psql-postgresql-poweruser-practice/
+
+postgres=# SELECT 'GRANT SELECT ON TABLE ' || tablename || ' TO someuser;' FROM pg_tables WHERE tablename~'^pgbench';
+?column?
+-----------------------------------------------------
+GRANT SELECT ON TABLE pgbench_accounts TO someuser;
+GRANT SELECT ON TABLE pgbench_branches TO someuser;
+GRANT SELECT ON TABLE pgbench_history TO someuser;
+GRANT SELECT ON TABLE pgbench_tellers TO someuser;
+(4 rows)
+
+postgres=# \gexec
+GRANT
+GRANT
+GRANT
+GRANT
+
+------
+
+SELECT 'GRANT ' || action || ' ON TABLE ' || tablename || ' TO someuser;' FROM pg_tables CROSS JOIN (VALUES ('INSERT'),('UPDATE'),('DELETE')) AS t(action) WHERE tablename~'^pgbench';
+
+....
+
+\gexec
+

@@ -1,0 +1,38 @@
+-- ilike' lı sorguları hızlandırmak için
+
+create table ogrenciler
+(
+    ad varchar(50),
+    soyad varchar(50),
+    kayit_tarihi timestamp not null default now()
+);
+
+insert into ogrenciler select md5(random()::text), md5(random()::text) from generate_series(1,1000000);
+
+\timing
+
+select count(*) from ogrenciler where ad ilike '%abc%';
+
+select count(*) from ogrenciler where ad ilike '%abc%' and soyad ilike '%abc%';
+
+cd src/contrib/pg_trgm
+make
+sudo make install
+
+veritabanına bağlan
+
+create extension if not exists pg_trgm;
+
+create index on ogrenciler using gin (ad gin_trgm_ops, soyad gin_trgm_ops);
+-- birazcık uzun sürüyor
+
+buradaki gin_trgm_ops operator class oluyormuş
+biz bunu create extension pg_trgm ile ekledik,
+varsayılan olarak yok
+
+paketten kurulumda
+
+create extension if not exists pg_trgm;
+CREATE INDEX email_trgm_idx ON emails USING gist (email gist_trgm_ops);
+-- gin daha iyi geldi
+CREATE INDEX email_trgm_2_idx  ON emails USING gin  (email gin_trgm_ops);

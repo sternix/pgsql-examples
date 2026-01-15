@@ -1,0 +1,28 @@
+yavaş çalışan sorguları loglamak
+
+log_min_duration_statement
+
+varsayılan değeri -1 yani disable hiç bir işlem yapmıyor
+0 değeri sistemdeki tüm sorguları logluyor
+>0 değeri ms olarak bir eşik olarak değerlendiriliyor,
+eğer sorgunun çalışma süresi bu değere eşit veya yüksek ise loglanıyor
+
+değişiklik yaptıktan sonra restart etmeye gerek yok,
+select pg_reload_conf();
+ile aktif edilebiliyor
+
+alter system set log_min_duration_statement=0;
+alter system set log_min_duration_statement=100;
+
+1000 - 1 saniye , 1s
+
+"us", "ms", "s", "min", "h", "d" değerlerini alabiliyor
+eğer birim verilmez ise ms olarak değerlendiriliyor
+
+alter system set log_min_duration_statement = '100ms';
+
+select pg_reload_conf();
+
+logging_collector = on
+yapılırsa data/log dizinindeki log dosyalarına yazılıyor
+

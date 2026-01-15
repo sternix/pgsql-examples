@@ -89,3 +89,19 @@ CREATE TABLE people_cars (
  cars text ARRAY
 );
 
+-------
+
+create table urunler (
+    isim text,
+    kategori text[]
+);
+
+insert into urunler values ('Samsung x',array['elektronik','telefon','samsung']);
+insert into urunler values ('HP 123',array['elektronik','yazıcı','samsung']);
+
+select kategori[2] from urunler;
+
+
+select kategori[566] from urunler;
+
+hata vermiyor

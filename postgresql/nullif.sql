@@ -1,0 +1,9 @@
+-- nullif
+
+-- The NULLIF function returns a null value if argument_1 equals to argument_2, otherwise it returns argument_1.
+
+-- iki parametre eşitse null, değilse ilk parametre
+
+SELECT NULLIF (1, 1); - return NULL
+SELECT NULLIF (1, 0); - return 1
+SELECT NULLIF ('A', 'B'); - return A

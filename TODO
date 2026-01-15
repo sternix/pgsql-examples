@@ -1,0 +1,4 @@
+replication
+
+extensions:
+ - pg_stat_statements

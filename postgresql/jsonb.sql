@@ -51,3 +51,21 @@ SELECT data FROM mytable WHERE data->>'name' = 'Alice';
 
 SELECT data->'locations'->'work' FROM mytable WHERE data @> '{"name":"Alice"}';
 SELECT data->'locations'->'work'->>'city' FROM mytable WHERE data @> '{"name":"Alice"}';
+
+---------
+
+create table kitaplar (
+    kitap_id serial primary key,
+    hakkinda jsonb
+);
+
+insert into kitaplar (hakkinda) values
+('{
+    "isim": "Anna Karanina",
+    "turler": ["Kurgu","Aşk romanı"],
+    "yayinda": true
+}');
+
+select jsonb_array_elements_text(hakkinda->'turler') as Türler
+from kitaplar
+where kitap_id = 1;
