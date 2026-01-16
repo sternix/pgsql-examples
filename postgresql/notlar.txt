@@ -379,6 +379,14 @@ pg_dump -Fc --no-acl --no-owner -h localhost -U myuser -d mydb -f mydb.dump
 
 pg_restore --clean --no-acl --no-owner -h localhost -U myuser -d mydb latest.dump
 
+yedek alırken X kullanıcının olan veritabanını
+restore ederken Y kullanıcısını owner olarak ayarlamak
+yeni owner Y oluyor
+
+create user Y;
+create database test with template template0 owner Y;
+pg_restore -Fc -d test --no-owner --role=Y test.dump
+
 ---------8<--------------------------
 
 \timing on
@@ -1329,5 +1337,80 @@ yukarıdaki sorgudan herhangi bir satır dönerse manuel analiz yapılabilir
 
 SET statement_timeout = 0;
 ANALYZE VERBOSE;
+
+---------8<--------------------------
+
+2 saat içinde analiz edilmeyen tablolar
+
+SELECT
+    COUNT(*) AS total_tables,
+    SUM(CASE WHEN last_analyze IS NULL OR last_analyze < (NOW() - INTERVAL '2 hours') THEN 1 ELSE 0 END) AS tables_remaining
+FROM pg_stat_user_tables;
+
+---------8<--------------------------
+
+DETAIL:  User does not have CONNECT privilege.
+grant connect on database testb to myuser;
+
+---------8<--------------------------
+
+psql: error: authentication method 10 not supported
+scram-sha-256
+şifrelemeyi desteklemiyor
+
+vim /etc/postgresql/17/main/postgresql.conf
+```
+#password_encryption = scram-sha-256    # scram-sha-256 or md5
+password_encryption = md5
+```
+
+On postgresql.conf file change:
+This: password_encryption = scram-sha-256
+To this: password_encryption = md5
+
+On pg_hba.conf file change:
+The method scram-sha-256 to md5 on all lines.
+
+Recreate your user again (Delete it then create again).
+
+systemctl restart postgresql@17-main.service
+
+---------8<--------------------------
+
+timezone olmadan now
+
+SELECT now()::timestamp;
+
+---------8<--------------------------
+
+pager'ı iptal etmek için
+
+\pset pager 0
+yada
+\pset pager off
+
+aktif etmek için
+\pset pager on
+Pager is used for long output.
+
+\pset pager off
+
+\pset pager always
+Pager is always used.
+
+---------8<--------------------------
+
+postgres --describe-config
+
+tüm config parametrelerini listeliyor
+
+---------8<--------------------------
+
+postgresql'in hangi seçenekler ile derlendiğini
+
+pg_config ile bulabiliriz
+
+-- eğer bir seçenekle derlendiğini teyit etmek istersek
+pg_config |grep '\-\-with-liburing'
 
 ---------8<--------------------------

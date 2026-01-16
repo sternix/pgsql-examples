@@ -3,7 +3,7 @@ SELECT
 FROM
     information_schema.role_table_grants
 WHERE
-    grantee = 'user'
+    grantee = 'myuser'
     AND with_hierarchy = 'YES';
 
 SELECT
@@ -11,7 +11,7 @@ SELECT
 FROM
     information_schema.role_table_grants
 WHERE
-    grantee = 'user'
+    grantee = 'myuser'
     and table_name = 'tbltest';
 
 -- bir kullanıcı bir tabloda hangi haklara sahip

@@ -120,6 +120,10 @@ peer ile local bağlantılar için sistem kullanıcısı - db kullanıcısı ayn
 sudo -i -u postgres  psql -d postgres -U postgres
 gibi giriş yapabiliyoruz
 
+peer authentication'ı geçmek için (local auth'dan host auth'a geçiyoruz)
+bu komutu herhangi bir kullanıcı olarak çalıştırabiliriz
+psql -d test -U postgres -h 127.0.0.1
+
 varsayılan olarak localhostu dinliyor
 ss -tunelp | grep 5432
 
@@ -182,3 +186,17 @@ data_directory = '/var/lib/postgresql/%v/%c'
 =>
 data_directory = '/opt/pgsql/%v/%c'
 ```
+
+-----
+
+pg_upgradecluster 17 main -v 18
+
+pg_dropcluster 17 main
+
+denedim çalıştı,
+
+fakat upgrade etmeden önce,
+/etc/postgresql/18/
+dizininin bir yedeğini al,
+
+17 nin ayarlarını alıyor

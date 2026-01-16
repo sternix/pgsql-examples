@@ -1,26 +1,26 @@
 TODO: parametreler açıklanabilir
 
-pgbench -d test -U user -i
+pgbench -d test -U myuser -i
 komutu ile tablolar oluşturulur
 
-pgbench -d test -U user -c 10 -t 100
+pgbench -d test -U myuser -c 10 -t 100
 
 createdb DBNAME
 pgbench -i DBNAME
 pgbench DBNAME
 
-pgbench -d test -U user -i
+pgbench -d test -U myuser -i
 komutu ile tablolar oluşturulur
 
-pgbench -d test -U user -c 10 -t 100
+pgbench -d test -U myuser -c 10 -t 100
 
 # bu şekilde socket üzerinden bağlanılıyor
-pgbench -j 40 -c 40 -T 180 -S -h /tmp -U user test
+pgbench -j 40 -c 40 -T 180 -S -h /tmp -U myuser test
 
-pgbench -j 10 -c 50 -U user test
-pgbench -j 50 -T 30 -c 100 -U user test
-pgbench -j 50 -T 30 -c 100 -S -U user test
-pgbench -j 50 -T 30 -c 100 -S -U user -p 5433 test
+pgbench -j 10 -c 50 -U myuser test
+pgbench -j 50 -T 30 -c 100 -U myuser test
+pgbench -j 50 -T 30 -c 100 -S -U myuser test
+pgbench -j 50 -T 30 -c 100 -S -U myuser -p 5433 test
 
 -S => select only
 

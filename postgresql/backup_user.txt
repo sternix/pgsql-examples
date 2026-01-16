@@ -37,3 +37,12 @@ backup için sadece read hakkı var
 hakları geri almak için
 -- REVOKE SELECT ON ALL TABLES IN SCHEMA public FROM backup;
 -- REVOKE SELECT ON ALL SEQUENCES IN SCHEMA public FROM backup;
+
+verilen grant'lar mevcut nesnelere uygulanıyor
+sonradan oluşturulacak tablo ve sequence'lere select hakkı verilebilmesi için
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO backup; 
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON SEQUENCES TO backup; 
+
+-- eğer insert vs hakları verilecekse
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT INSERT ON TABLES TO someuser;

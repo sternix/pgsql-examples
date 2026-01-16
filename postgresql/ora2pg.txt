@@ -1,0 +1,18 @@
+/etc/ora2pg/ora2pg.conf
+```
+ORACLE_DSN  dbi:Oracle:host=192.168.1.1;sid=BETA;port=1521
+ORACLE_USER USERNAME
+ORACLE_PWD  secret
+
+EXPORT_SCHEMA   1
+SCHEMA      TEST
+PG_SCHEMA   TEST 
+TYPE    TYPE
+OUTPUT      TEST.sql
+OUTPUT_DIR  /var/lib/postgresql/ora2pg/testscheme
+```
+
+diğer değerler aynı
+
+ora2pg -t SHOW_VERSION -c ora2pg.conf
+ora2pg -d
