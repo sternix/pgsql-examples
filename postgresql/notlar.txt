@@ -1169,4 +1169,165 @@ simple least-recently-used cache durumu
 
 ---------8<--------------------------
 
+select tableoid,cmin,cmax,xmin,xmax,ctid,* from tbltest;
+
+her oluşturulan tabloda sistemin oluşturduğu kolonlar
+* dediğimiz user'ın oluşturduğu kolonlar
+
+---------8<--------------------------
+
+Primary key versus unique index
+
+Things that are the same:
+
+A primary key implies a unique index.
+
+Things that are different:
+
+A primary key also implies NOT NULL, but a unique index can be nullable.
+There can be only one primary key, but there can be multiple unique indexes.
+If there is no clustered index defined then the primary key will be the clustered index.
+
+primary key null olamaz, unique index olabilir
+bir tabloda tek bir primary key olabilir, birden çok unique index olabilir
+
+---------8<--------------------------
+
+cluster user_order using user_order_pkey;
+
+tabloyu verilen indexe göre (yada varsa clustered index)
+fiziksel olarak sıralıyor ???
+
+yada cluster tanımla
+ALTER TABLE tc1 CLUSTER ON tc1_pkey;
+
+cluster tc1;
+
+"tc1_pkey" PRIMARY KEY, btree (id) CLUSTER
+
+---------8<--------------------------
+
+vacuum (analyze off, verbose on) t1;
+
+---------8<--------------------------
+
+artık $$ ifadelerine gerek yokmuş
+
+create function add (a int,b int) returns int
+    language sql return a + b;
+
+create procedure insert_data(a int, b int)
+language sql
+begin atomic
+    insert into t1(c1) values (a);
+    insert into t1(c1) values (b);
+end;
+
+call insert_data(3234,2343253);
+
+plpgsql'de var mı ?
+
+---------8<--------------------------
+
+psql "host=replica1,replica2,replica3 load_balance_hosts=random"
+
+---------8<--------------------------
+
+update t set id = id +1;
+
+bu işlem için hem select hem update grant'ı gerekiyor
+
+---------8<--------------------------
+
+set timezone = 'utc';
+
+select
+    '2023-10-04 00:00:00+02'::timestamptz + '1 day'::interval,
+    date_add('2023-10-04 00:00:00+02'::timestamptz , '1 day'::interval, 'Europe/Warsaw');
+
+bende aynı değeri verdi
+
+---------8<--------------------------
+
+select sha256(random()::text::bytea);
+
+---------8<--------------------------
+
+checkpoint izni
+
+GRANT pg_checkpoint TO foobar;
+
+---------8<--------------------------
+
+HOW ARE COLLATIONS RELEVANT?
+ORDER BY : order of output
+WHERE : searching data
+JOIN : matching data
+UNIQUE : dene a sense of equality
+PARTITON BY : distributing data
+Often supported by Indexes.
+
+---------8<--------------------------
+
+SELECT * FROM pg_collation;
+
+\dOS+ tr*
+
+tr-TR
+
+\dOS+ de*
+
+---------8<--------------------------
+
+Türkiye ve Türkçe ayarları
+
+log_timezone = 'Europe/Istanbul'
+datestyle = 'iso, dmy'
+timezone = 'Europe/Istanbul'
+lc_messages = 'tr_TR.UTF-8'     # locale for system error message
+lc_monetary = 'tr_TR.UTF-8'     # locale for monetary formatting
+lc_numeric = 'tr_TR.UTF-8'      # locale for number formatting
+lc_time = 'tr_TR.UTF-8'         # locale for time formatting
+default_text_search_config = 'pg_catalog.turkish'
+
+---------8<--------------------------
+
+sistemden kaç bağlantı, oturum var
+
+SELECT sum(numbackends) FROM pg_stat_database;
+
+---------8<--------------------------
+
+veritabanını başka bir kullanıcı için restore etme
+pg_dump ile yedek alınırken,
+veritabanı owner'ı ile birlikte yedek alınıyor,
+restore edileceği zaman sistemde o kullanıcı aranıyor,
+eğer bulamazsa hata veriyor
+
+https://stackoverflow.com/questions/31469008/postgresql-backup-database-and-restore-on-different-owner
+
+createdb -p 5433 -T template0 db_name
+pg_restore -p 5433 --no-owner --role=owner2 -d db_name db_name.dump
+
+---------8<--------------------------
+
+/usr/lib/postgresql/18/bin/initdb -D /var/lib/postgresql/18/main --auth-local peer --auth-host scram-sha-256 --no-instructions --data-checksums --locale-provider=icu --icu-locale=tr-TR
+
+---------8<--------------------------
+
+select name,setting from pg_settings where name ~ 'vac.*cost';
+
+---------8<--------------------------
+
+hangi user tablolaları analiz edilmemiş
+
+SELECT relname, last_analyze, last_autoanalyze FROM pg_stat_user_tables WHERE last_analyze IS NULL AND last_autoanalyze IS NULL;
+
+eğer
+
+yukarıdaki sorgudan herhangi bir satır dönerse manuel analiz yapılabilir
+
+SET statement_timeout = 0;
+ANALYZE VERBOSE;
+
 ---------8<--------------------------

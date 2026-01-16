@@ -167,3 +167,18 @@ pg_ctlcluster     - Control the server process of a cluster
 pg_lsclusters     - Show a list of all existing clusters and their status.
 pg_upgradecluster - Migrate a cluster from one major version to another one.
 pg_renamecluster  - Rename a cluster.
+
+-----
+
+cluster oluşturulmadan varsayılan ayarları değiştirebiliriz
+
+data dizini değiştirme
+
+install -dm755 -o postgres -g postgres /opt/pgsql/
+
+vim /etc/postgresql-common/createcluster.conf
+```
+data_directory = '/var/lib/postgresql/%v/%c'
+=>
+data_directory = '/opt/pgsql/%v/%c'
+```

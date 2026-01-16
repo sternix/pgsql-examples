@@ -1,0 +1,14 @@
+bir ssh tüneli oluşturmak
+
+karşı makinenin 5432 portunda postgresql var ip adresi 192.168.10.145
+fakat erişim olmadından kendi sunucuma tünel açarak sanki kendi sunucumda gösteriyorum
+
+ssh -L 12345:localhost:5432 192.168.10.145
+
+bu bağlantı açık bir şekilde durmalı
+
+başka bir konsoldan
+
+psql -h localhost -p 12345 -U postgres
+
+ile karşı makineye ssh tünel üzerinden bağlanabiliriz

@@ -1,0 +1,20 @@
+sistem arızasında bu seçenekleri değerlendirilebilir
+
+allow_system_table_mods (bool)
+system tablolarında değişikliğe izin ver
+
+ignore_checksum_failure (bool)
+eğer tablolarda bir checksum fail varsa görmezden gel
+
+zero_damaged_pages (bool)
+
+ignore_invalid_pages (bool)
+
+ignore_system_indexes (bool)
+
+post_auth_delay (integer)
+pre_auth_delay (integer)
+
+wal_consistency_checking (string)
+
+backtrace_functions (string)
