@@ -24,7 +24,7 @@ apt install postgresql
 sadece client'ı kurmak için (psql, pg_dump vs)
 apt install postgresql-client
 
-varsayılan olarak 18'yı kuruyor
+varsayılan olarak en güncel versiyonu kuruyor, 
 
 LC_ALL=tr_TR.UTF-8 pg_createcluster --start 18 main
 
@@ -39,18 +39,131 @@ journalctl -xeu postgresql@18-main.service
 systemctl status postgresql
 systemctl status postgresql@18-main.service
 
-
 temel ayarlar
 vim /etc/postgresql/18/main/postgresql.conf
 ```
-shared_buffers = ram'in 1/4
-effective_cache_size = ram'in 1/2
-maintenance_work_mem = 1GB
-work_mem = 4MB
+shared_buffers = # ram'in 1/4
+effective_cache_size = # ram'in 1/2
+maintenance_work_mem = 1GB # create index, vacuum vs rutin işlemler için
+work_mem = 4MB # sort,order by işlemleri için kullanılan ram miktarı, yeterli olmazsa temp dosyalar kullanılıyor
 ```
-
 
 crontab -e -u postgres
 ```
 0 5 * * * /usr/bin/vacuumdb --full --analyze --all -q
 ```
+
+/etc/postgresql/[version]/[cluster]/pg_ctl.conf
+
+Configuration files: /etc/postgresql/[version]/[cluster]/
+Binaries: /usr/lib/postgresql/[version]
+Data files: /var/lib/postgresql/[version]/[cluster]
+log dosyaları /var/log/postgresql/postgresql-[version]-[cluster].log
+
+
+/usr/lib/systemd/system/postgresql@.service
+system-postgresql.slice
+systemctl status postgresql
+
+systemctl restart postgresql
+ile tüm cluster'ı tüm veritabanlarını restart ediyor
+
+pg_lsclusters
+```
+Ver Cluster Port Status Owner    Data directory              Log file
+18  main    5432 online postgres /var/lib/postgresql/18/main /var/log/postgresql/postgresql-18-main.log
+```
+
+ikinci cluster oluşturmak
+NOT: ikinci cluster'ı 5433 portundan çalıştırdı
+
+sudo pg_createcluster 18 test --start --locale=tr_TR.UTF8 --encoding=UTF-8
+
+data dizini vs verilebiliyor
+
+sudo pg_ctlcluster 18 test status
+sudo pg_ctlcluster 18 test restart
+sudo pg_ctlcluster 18 test stop
+sudo pg_ctlcluster 18 test start
+
+pg_renamecluster 18 test beta
+test'in adını beta olarak değiştiriyor,
+stop start yapıyor
+
+son versiyona pg_upgrade yapıyor
+pg_upgradecluster 18 beta
+
+giriş yapabilmek için işletim sistemi kullanıcısı olan postgres ile bağlanabiliyoruz
+şifre istemiyor
+
+pg_hba.conf'ta varsayılan olarak
+```
+local   all             postgres                                peer
+```
+
+root - su ile
+su -c /usr/bin/psql postgres
+
+sudo ile
+sudo -u postgres psql
+
+yada login olup çalıştır
+sudo su - postgres
+sudo -u postgres /bin/bash
+psql
+
+başka bir porttaki postgresql'e bağlanmak için
+psql -U postgres -p 5433 -h /var/run/postgresql
+
+peer ile local bağlantılar için sistem kullanıcısı - db kullanıcısı aynı adda olacak
+
+sudo -i -u postgres  psql -d postgres -U postgres
+gibi giriş yapabiliyoruz
+
+varsayılan olarak localhostu dinliyor
+ss -tunelp | grep 5432
+
+postgresl.conf'tan
+istersek sistemdeki tanımlı tüm ipleri
+listen_addresses = '*'
+
+istersek istediğimiz ip'yi dinleyebilecek şekilde
+listen_addresses = '10.10.0.2'
+
+varsayılan olarak kurulan cluster varsayılan değerlerle oluşturuluyor, silip yeniden oluşturmak için
+
+pg_dropcluster --stop <version> main
+ör:
+pg_dropcluster --stop 18 main
+
+pg_createcluster --locale tr_TR.UTF-8 --start 18 main
+
+src/contrib dizini içerisindeki extension'lar
+/usr/lib/postgresql/<VERSION>/lib
+dizininde kurulu geliyor
+
+sudo vim /etc/postgresql/<VERSION>/main/postgresql.conf
+```
+shared_preload_libraries = ''
+=>
+shared_preload_libraries = 'pg_stat_statements'
+```
+
+sudo pg_ctlcluster 18 main restart
+
+yada apt paketinden kurmak istersek
+apt install  postgresql-18-postgis-3
+create extension postgis;
+SELECT PostGIS_Full_Version();
+
+kurulu olan pgsql paketleri
+dpkg --get-selections | grep postgres
+
+pg_createcluster  - Create a new cluster or integrate an existing one
+                    into the postgresql-common architecture.
+pg_dropcluster    - Completely remove a cluster.
+pg_ctlcluster     - Control the server process of a cluster
+                    (start, stop, restart).
+pg_lsclusters     - Show a list of all existing clusters and their status.
+pg_upgradecluster - Migrate a cluster from one major version to another one.
+pg_renamecluster  - Rename a cluster.
