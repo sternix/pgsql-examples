@@ -1,9 +1,7 @@
 -- non recursion form
-CREATE OR REPLACE FUNCTION public.psqlfibnr(n integer)
- RETURNS integer
- LANGUAGE plpgsql
- IMMUTABLE STRICT
-AS $function$
+CREATE OR REPLACE FUNCTION psqlfibnr(n integer)
+RETURNS integer AS
+$$
 DECLARE
   prev1 int = 0;
   prev2 int = 1;
@@ -17,23 +15,21 @@ BEGIN
   END LOOP;
   RETURN result;
 END;
-$function$
-
+$$ LANGUAGE plpgsql IMMUTABLE STRICT
 
 -- recursion form
-CREATE OR REPLACE FUNCTION public.psqlfibr(n integer)
- RETURNS integer
- LANGUAGE plpgsql
- IMMUTABLE STRICT
-AS $function$
+CREATE OR REPLACE FUNCTION psqlfibr(n integer)
+RETURNS integer AS 
+$$
 BEGIN
   IF n < 2 THEN
     RETURN n;
   END IF;
-  RETURN psqlfib(n-1) + psqlfib(n-2);
+  RETURN psqlfibr(n-1) + psqlfibr(n-2);
 END;
-$function$
-
+$$ LANGUAGE plpgsql IMMUTABLE STRICT
 
 -- select n, psqlfibnr(n) from generate_series(0,35,5) as n;
--- select n, psqlfib(n) from generate_series(0,35,5) as n;  
+-- select n, psqlfibr(n) from generate_series(0,35,5) as n;
+
+-- recursive olanı çok yavaş

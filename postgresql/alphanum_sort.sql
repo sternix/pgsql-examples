@@ -1,15 +1,21 @@
 /*
 
 Alphanumeric sorting
-(mantık basit regex ile değerin sayı olup olmadığına bakılıyor, eğer sayı
-değilse NULL olarak değerlendiriyor)
+
+regex ile code alanındaki varchar değeri "Adeğerin sayı olup olmadığına bakılıyor,
+eğer varchar olan code alanındaki değerin regex'i doğru ise tamamı rakam içeriyorsa sayıya çevir
+değilse null döndür
 
 */
 
+
+
+
+drop table an_test
 create table an_test
 (
-        name varchar(25),
-        code varchar(25)
+    name varchar(25),
+    code varchar(25)
 );
 
 insert into an_test values ('one','1');
@@ -22,16 +28,19 @@ insert into an_test values ('A-two','A1');
 insert into an_test values ('A-four','A4');
 insert into an_test values ('C-ten','C10');
 insert into an_test values ('C-eight','C8');
-insert into an_test values ('B-six','D6');
+insert into an_test values ('D-six','D6');
 
 
 select * from an_test order by code;
 
-select name, code from
-        ( select *,
-                (case when code ~ '^[0-9]+'
-                        then code::integer
-                else NULL
-                        end) as number
-        from an_test ) foo
-order by number, code;
+select
+	name,
+	code,
+	case
+		when code ~ '^[0-9]+' then code::integer
+		else NULL
+	end as number
+from
+	an_test
+order by
+	number, code;

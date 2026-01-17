@@ -14,7 +14,8 @@ INSERT INTO payments VALUES(CURRENT_TIMESTAMP, 'c', '-99.99');
 
 CREATE OR REPLACE FUNCTION my_proc(TIMESTAMP)
 RETURNS SETOF payments
-AS '
+AS
+$$
 DECLARE
     rec RECORD;
 BEGIN
@@ -27,7 +28,7 @@ BEGIN
     END LOOP;
     RETURN;
 END;
-' LANGUAGE 'plpgsql';
+$$ LANGUAGE 'plpgsql';
 
 
 select * from payments;
