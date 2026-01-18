@@ -1,17 +1,31 @@
-SELECT relname, n_dead_tup, last_vacuum, last_autovacuum FROM
-pg_catalog.pg_stat_all_tables
-WHERE n_dead_tup > 0 and relname = 'tbltest';
+SELECT
+    relname,
+    n_dead_tup,
+    last_vacuum,
+    last_autovacuum
+FROM
+    pg_catalog.pg_stat_all_tables
+WHERE
+    n_dead_tup > 0 and
+    relname = 'tbltest';
 
 -- dead tuples olan tablolar ne zaman vacuum gördü
 
-SELECT relname, n_dead_tup, last_vacuum, last_autovacuum FROM
-pg_catalog.pg_stat_all_tables
-WHERE n_dead_tup > 0;
+SELECT
+    relname,
+    n_dead_tup,
+    last_vacuum,
+    last_autovacuum
+FROM
+    pg_catalog.pg_stat_all_tables
+WHERE
+    n_dead_tup > 0;
 
 -----
 
 select
-    relfrozenxid, age(relfrozenxid)
+    relfrozenxid,
+    age(relfrozenxid)
 from
     pg_class
 where
@@ -23,7 +37,13 @@ show vacuum_freeze_min_age;
 
 vacuum_freeze_table_age - vacuum_freeze_min_age
 
-eğer autovacuumu kapatsak bile
+
+/*
+
+autovacuum'u kapalı olsa da
+transaction
 show autovacuum_freeze_max_age;
-bu değer kadar transaction geçtiğinde
-autovauum işlemini otomatik olarak başlatır
+değerini geçtiğinde
+autovacuum işlemini otomatik olarak başlatır
+
+*/

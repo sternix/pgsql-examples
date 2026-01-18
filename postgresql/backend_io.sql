@@ -11,4 +11,4 @@ from
 where
     writes > 0
 group by rollup (backend_type)
-order by blocks;
+order by blocks desc; 
